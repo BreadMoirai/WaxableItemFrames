@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "waxableitemframes",
+  "version": "${version}",
+  "name": "WaxableItemFrames",
+  "description": "",
+  "authors": [],
+  "contact": {},
+  "license": "All-Rights-Reserved",
+  "icon": "assets/waxableitemframes/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.breadmoirai.waxableitemframes.Waxableitemframes"
+    ]
+  },
+  "mixins": [
+    "waxableitemframes.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "minecraft": "${minecraft_version}"
+  },
+  "custom": {
+    "mc-publish": {
+      "modrinth": "waxable-item-frames",
+      "dependencies": [
+      ]
+    }
+  }
+}
