@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "id": "waxableitemframes-testmod",
+  "version": "1.0.0",
+  "name": "WaxableItemFrames Testmod",
+  "environment": "*",
+  "entrypoints": {
+    "fabric-gametest": [
+      "com.breadmoirai.waxableitemframes.testmod.WaxableItemFramesGameTests"
+    ]
+  },
+  "depends": {
+    "waxableitemframes": "*"
+  }
+}

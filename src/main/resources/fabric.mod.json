@@ -3,9 +3,13 @@
   "id": "waxableitemframes",
   "version": "${version}",
   "name": "WaxableItemFrames",
-  "description": "",
-  "authors": [],
-  "contact": {},
+  "description": "Wax a filled item frame with honeycomb to lock it in place; remove the wax with an axe.",
+  "authors": ["BreadMoirai"],
+  "contact": {
+    "homepage": "https://github.com/BreadMoirai/WaxableItemFrames",
+    "issues": "https://github.com/BreadMoirai/WaxableItemFrames/issues",
+    "sources": "https://github.com/BreadMoirai/WaxableItemFrames"
+  },
   "license": "All-Rights-Reserved",
   "icon": "assets/waxableitemframes/icon.png",
   "environment": "*",
@@ -18,14 +22,13 @@
     "waxableitemframes.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=${loader_version}",
-    "minecraft": "${minecraft_version}"
+    "fabricloader": ">=0.15.7",
+    "minecraft": "${minecraft}"
   },
   "custom": {
     "mc-publish": {
       "modrinth": "5l0vNxoO",
-      "dependencies": [
-      ]
+      "dependencies": []
     }
   }
 }
