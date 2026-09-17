@@ -5,6 +5,8 @@ on: [ pull_request ]
 jobs:
   test:
     runs-on: ubuntu-latest
+    # A Minecraft client that fails to start can hang instead of exiting; don't burn the 6h default.
+    timeout-minutes: 60
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v6
