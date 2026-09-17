@@ -136,3 +136,15 @@ jobs:
           loaders: fabric
           game-versions: "26.2"
           java: 25
+
+      - name: Publish 26.3
+        uses: BreadMoirai/mc-publish@master
+        with:
+          modrinth-token: ${{ secrets.M_TOKEN }}
+          files: build/libs/${{ env.MOD_VERSION }}/waxableitemframes-${{ env.MOD_VERSION }}+26.3*.jar
+          name: "${{ env.MOD_VERSION }}+26.3"
+          version: "${{ env.MOD_VERSION }}+26.3"
+          version-type: release
+          loaders: fabric
+          game-versions: "26.3"
+          java: 25
