@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.breadmoirai.waxableitemframes.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "ItemFrameAccessor",
+    "v26_1.ItemFrameEntityMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

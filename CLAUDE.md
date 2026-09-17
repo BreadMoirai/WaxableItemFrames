@@ -46,14 +46,15 @@ suffix, and `mixins.json` prefix are all the un-hyphenated `waxableitemframes`.)
 
 ## Versions
 
-Supported: **1.21.8, 1.21.9, 1.21.10, 1.21.11, 26.1, 26.1.1, 26.1.2, 26.2** (`vcsVersion = 26.2`).
+Supported: **1.21.8, 1.21.9, 1.21.10, 1.21.11, 26.1, 26.1.1, 26.1.2, 26.2, 26.3** (`vcsVersion = 26.3`).
 
 - **1.21.x line** (1.21.8–1.21.11): normal `fabric-loom-remap` + Mojang-mappings path, Java 21,
   `build.gradle.kts`, `transformUnnamedVars` on switch.
-- **26.x line** (26.1, 26.1.1, 26.1.2, 26.2): un-obfuscated / JDK-25 toolchain, registered in
-  `settings.gradle.kts` via `versions("26.2", "26.1.2", "26.1.1", "26.1").buildscript("build.unobf.gradle.kts")`
+- **26.x line** (26.1, 26.1.1, 26.1.2, 26.2, 26.3): un-obfuscated / JDK-25 toolchain, registered in
+  `settings.gradle.kts` via `versions("26.3", "26.2", "26.1.2", "26.1.1", "26.1").buildscript("build.unobf.gradle.kts")`
   (plain `fabric-loom`, no Mojang mappings, `restoreUnnamedVars` on switch, `jar` not `remapJar`).
-  The 26.1.x patches are API-identical to 26.1, so there is no Java source divergence between them.
+  The 26.1.x patches are API-identical to 26.1, so there is no Java source divergence between them;
+  26.2 is likewise source-identical to them. 26.3 diverges (see below).
 
 The `vcsVersion` (newest version) holds the shared `src/`. Use the **`update`** skill to add a
 newer MC version (it becomes the new `vcsVersion`) and **`backport`** for an older one; both read
@@ -67,6 +68,17 @@ the placeholders above.
   `mixin/v26_1/ItemFrameEntityMixin.java` (3-arg, unused `Vec3 hitPos`); each version's `mixins.json`
   picks one. The game tests call `interact` through a single version-conditional helper
   (`//? if >=26.1 { 3-arg } else { 2-arg }`) in `WaxableItemFramesGameTests`.
+- **MC 26.3 dropped `net.minecraft.world.item.AxeItem`** — the axe check is now the vanilla item tag
+  `itemStack.is(ItemTags.AXES)`. `ItemTags.AXES` exists on every supported version, so this is plain
+  shared code with no condition (it also now matches exactly the vanilla `minecraft:axes` set rather
+  than any `AxeItem` subclass).
+- **MC 26.3 renamed `LevelEvent.PARTICLES_AND_SOUND_WAX_ON` -> `PARTICLES_WAX_ON`** and turned
+  `SoundEvents.AXE_WAX_OFF` into a `Holder.Reference<SoundEvent>` (so it needs `.value()` before
+  `Entity.playSound`). `SoundEvents.HONEYCOMB_WAX_ON` and `LevelEvent.PARTICLES_WAX_OFF` are
+  unchanged. Both are handled by the `"26.3"` entry in `stonecutter-swaps.gradle.kts` rather than
+  inline conditions, so the two versioned mixin classes stay condition-free. The `AXE_WAX_OFF` key
+  includes its trailing comma (`"SoundEvents.AXE_WAX_OFF,"`) so the forward direction is a no-op on
+  the shared `src/`, which already carries the 26.3 form.
 - **`GameTestHelper.fail` takes a `Component`** (not `String`) — tests route failures through a
   `fail(helper, String)` helper that wraps with `Component.literal(...)` (stable across versions).
 
@@ -74,8 +86,8 @@ the placeholders above.
 
 - `HangingEntity.fixed` field name, `LevelEvent.PARTICLES_AND_SOUND_WAX_ON` /
   `LevelEvent.PARTICLES_WAX_OFF` constants, `SoundEvents.{HONEYCOMB_WAX_ON,AXE_WAX_OFF}`,
-  `AxeItem`, and `GameTestHelper.makeMockPlayer(GameType)` — all unchanged across 1.21.8–26.2.
-- `stonecutter-swaps.gradle.kts` is currently empty (no cross-version symbol renames needed yet).
+  and `GameTestHelper.makeMockPlayer(GameType)` — all unchanged across 1.21.8–26.3
+  (`LevelEvent.PARTICLES_AND_SOUND_WAX_ON` and `AxeItem` did **not** survive 26.3 — see above).
 
 ## Build (WSL2 / Windows filesystem)
 
@@ -83,7 +95,7 @@ Run via the Windows wrapper (`./gradlew` fails on WSL2). For task names **with s
 unwrapped — nesting quotes yields `Task '"Set' not found`:
 
 ```bash
-cmd.exe /c gradlew.bat :1.21.8:compileJava
+cmd.exe /c gradlew.bat :26.3:compileJava
 cmd.exe /c gradlew.bat "Set active project to 1.21.8"
 cmd.exe /c gradlew.bat buildAndCollect   # builds every version into build/libs/<mod.version>/
 ```
@@ -104,8 +116,17 @@ set; `runGameTest` is enabled via `-Dfabric-api.gametest` and writes `build/juni
 ```bash
 cmd.exe /c gradlew.bat "Set active project to 1.21.8"
 cmd.exe /c gradlew.bat :1.21.8:runGameTest   # one version
-cmd.exe /c gradlew.bat runGameTest           # all versions (also run in CI before publish)
+cmd.exe /c gradlew.bat runGameTest --max-workers=4   # all versions (also run in CI before publish)
 ```
+
+- These are headless servers, so they are far cheaper than client gametests — but keep
+  `--max-workers=4` as the default cap anyway, matching OneClickCrafting/OneClickAnvil, whose real
+  Minecraft clients hang permanently past about four in parallel.
+- **26.x Windows JVM stack crash (fixed):** `build.unobf.gradle.kts` passes
+  `-XX:+UnlockDiagnosticVMOptions -XX:+AlwaysPreTouchStacks` to every loom run. Without it, 10–50% of
+  26.x client launches die in the first resource reload (`NTSTATUS 0xC0000005`, no `hs_err`) from a
+  HotSpot-on-Windows stack-growth bug — not mod code. Do not remove the flag. Full write-up: `update`
+  skill → `references/api-divergences.md` → "26.x client startup crash on Windows".
 
 Each test spawns a real `ItemFrame` (attached to a stone block), gives a mock player a held item,
 calls `frame.interact(player, hand)` directly, and asserts the `fixed` flag (via `ItemFrameAccessor`)

@@ -1,11 +1,11 @@
 package com.breadmoirai.waxableitemframes.mixin.v21_8;
 
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.LevelEvent;
@@ -35,8 +35,8 @@ public class ItemFrameEntityMixin {
       }
       boolean itemFrameEmpty = t.getItem().isEmpty();
       if (!itemFrameEmpty) {
-         if (fixed && itemStack.getItem() instanceof AxeItem) {
-            t.playSound(SoundEvents.AXE_WAX_OFF, 1.0F, 1.0F);
+         if (fixed && itemStack.is(ItemTags.AXES)) {
+            t.playSound(SoundEvents.AXE_WAX_OFF.value(), 1.0F, 1.0F);
             t.level().levelEvent(null, LevelEvent.PARTICLES_WAX_OFF, t.blockPosition(), 0);
             fixed = false;
             cir.setReturnValue(InteractionResult.SUCCESS);
@@ -45,7 +45,7 @@ public class ItemFrameEntityMixin {
          if (itemStack.is(Items.HONEYCOMB) && !fixed) {
             itemStack.shrink(1);
             t.playSound(SoundEvents.HONEYCOMB_WAX_ON, 1.0f, 1.0f);
-            t.level().levelEvent(null, LevelEvent.PARTICLES_AND_SOUND_WAX_ON, t.blockPosition(), 0);
+            t.level().levelEvent(null, LevelEvent.PARTICLES_WAX_ON, t.blockPosition(), 0);
             fixed = true;
             cir.setReturnValue(InteractionResult.SUCCESS);
          }
