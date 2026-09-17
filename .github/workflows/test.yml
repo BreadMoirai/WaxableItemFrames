@@ -1,0 +1,23 @@
+name: Test
+
+on: [ pull_request ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+        with:
+          submodules: true
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: |
+            21
+            25
+
+      - name: Run Game Tests
+        run: bash ./gradlew runGameTest
